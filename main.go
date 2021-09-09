@@ -9,6 +9,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -17,6 +18,10 @@ var DBEngine *gorm.DB
 type Message struct {
 	Tag  string `json:"tag"`
 	Text string `json:"text"`
+}
+type NoteApi struct {
+	Message
+	db *gorm.DB
 }
 
 const char = "abcdefghijklmnopqrstuvwxyz0123456789"
@@ -33,31 +38,67 @@ func index(ctx *gin.Context) {
 	ctx.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 	ctx.Header("Pragma", "no-cache")
 	ctx.Header("Expires", "0")
-	ctx.Redirect(http.StatusMovedPermanently, ctx.Request.URL.String()+RandChar(8)) //url path长度
+	ctx.Redirect(http.StatusMovedPermanently, ctx.Request.URL.EscapedPath()+RandChar(10)) //url path长度
 
 }
 
 func processHandle(ctx *gin.Context) {
+	fmt.Println(strings.Split(ctx.Request.URL.EscapedPath(), "/")[1])
 	msg := &Message{}
 	if ctx.Request.Method == http.MethodPost {
 		fmt.Println(ctx.Request.FormValue("text"))
 		//dataSet[ctx.Request.RequestURI] = ctx.PostForm("text")
-		if DBEngine.Where("tag = ?", ctx.Request.URL.Path).First(&msg).RecordNotFound() == true {
-			msg.Tag = ctx.Request.URL.Path
+		if DBEngine.Where("tag = ?", strings.Split(ctx.Request.URL.EscapedPath(), "/")[1]).First(&msg).RecordNotFound() == true {
+			msg.Tag = strings.Split(ctx.Request.URL.EscapedPath(), "/")[1]
 			msg.Text = ctx.Request.FormValue("text")
 			DBEngine.Create(&msg)
 		}
-		if DBEngine.Where("tag = ?", ctx.Request.URL.Path).First(&msg).RecordNotFound() == false {
-			DBEngine.Model(&msg).Where("tag = ?", ctx.Request.URL.Path).Update("text", ctx.Request.FormValue("text"))
+		if DBEngine.Where("tag = ?", strings.Split(ctx.Request.URL.EscapedPath(), "/")[1]).First(&msg).RecordNotFound() == false {
+			DBEngine.Model(&msg).Where("tag = ?", strings.Split(ctx.Request.URL.EscapedPath(), "/")[1]).Update("text", ctx.Request.FormValue("text"))
 		}
 
 	}
 	if ctx.Request.Method == http.MethodGet {
 		if ctx.Request.URL.Path != "/favicon.ico" {
-			DBEngine.Where("tag = ?", ctx.Request.URL.Path).First(&msg)
+			DBEngine.Where("tag = ?", strings.Split(ctx.Request.URL.EscapedPath(), "/")[1]).First(&msg)
 			ctx.HTML(http.StatusOK, "index.html", gin.H{"title": "免登录 可分享 实时保存的记事本", "text": msg.Text})
 		}
 
+	}
+
+}
+func NewNoteApi() *NoteApi {
+	return &NoteApi{db: DBEngine}
+
+}
+
+// Api POST请求传递参数Tag和Text
+func (r *NoteApi) Api(ctx *gin.Context) {
+	msg := &Message{}
+	ctx.Bind(&r.Message)
+	fmt.Println(r.Message)
+	if len(r.Message.Tag) < 10 || r.Message.Text == "" { //控制tag长度
+		ctx.Writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	fmt.Println(r.Message.Tag)
+	if r.db.Where("tag = ?", r.Message.Tag).First(msg).RecordNotFound() == true {
+		if affected := r.db.Create(r.Message).RowsAffected; affected != 0 {
+			ctx.String(http.StatusOK, "CreateNotebookTextSuccess")
+			return
+
+		}
+		ctx.String(http.StatusInternalServerError, "CreateNotebookTextFailed")
+		return
+
+	}
+	if r.db.Where("tag = ?", r.Message.Tag).First(msg).RecordNotFound() == false {
+		if affected := r.db.Model(r.Message).Where("tag = ?", r.Message.Tag).Update("text", &r.Message.Text).RowsAffected; affected != 0 {
+			ctx.String(http.StatusOK, "UpdateNotebookTextSuccess")
+			return
+		}
+		ctx.String(http.StatusInternalServerError, "UpdateNotebookTextFailed")
+		return
 	}
 
 }
@@ -71,10 +112,10 @@ func init() {
 }
 func NewDBEngine() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=%s",
-		"dbusername", //用户名
-		"dbpassword", //密码
-		"dburl:3306", //db地址
-		"notes",      //库名，要先建库
+		"mysqluser",      //用户名
+		"mysqlpassword",  //密码
+		"mysql.com:3306", //db地址
+		"notes",          //库名，要先建库
 		"utf8",
 		true,
 		url.QueryEscape("Asia/Shanghai"),
@@ -93,11 +134,14 @@ func NewDBEngine() (*gorm.DB, error) {
 }
 
 func main() {
+	api := NewNoteApi()
 	r := gin.Default()
 	r.GET("/", index)
-	r.Any("/:id", processHandle)
+	r.POST("/:id", processHandle)
+	r.POST("/api", api.Api)
+	r.GET("/:id", processHandle)
 	r.Static("./static", "./static")
 	r.LoadHTMLGlob("./home/*")
-	r.Run(":23456")
+	r.Run(":80") //监听端口
 
 }
