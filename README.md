@@ -1,5 +1,7 @@
 #  一个web笔记本
-本站demo https://low.im
+本站demo：长期维护 https://note.valarx.com 
+
+
 
 原项目地址：https://github.com/pereorga/minimalist-web-notepad
 
