@@ -72,7 +72,7 @@ func NewNoteApi() *NoteApi {
 
 }
 
-// Api POST请求传递参数Tag和Text
+// Api POST请求传递参数Text
 func (r *NoteApi) create(ctx *gin.Context) {
 	msg := &Message{}
 	ctx.Bind(&r.Message)
@@ -92,6 +92,7 @@ func (r *NoteApi) create(ctx *gin.Context) {
 
 }
 
+//POST请求传递参数Tag和Text
 func (r *NoteApi) update(ctx *gin.Context) {
 	msg := &Message{}
 	ctx.Bind(&r.Message)
@@ -116,10 +117,10 @@ func init() {
 }
 func NewDBEngine() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=%s",
-		"username",               //用户名
-		"password",          //密码
+		"username",      //用户名
+		"password",      //密码
 		"mysql.im:3306", //db地址
-		"notes",              //库名，要先建库
+		"notes",         //库名，要先建库
 		"utf8",
 		true,
 		url.QueryEscape("Asia/Shanghai"),
