@@ -9,11 +9,32 @@
 添加通过API POST请求创建
 
 ```
-参数
-Tag 长度控制请修改 Api() 中的值，默认不小于10
-Text 默认不为空即可
+ 创建：
+ POST /api/create 
+ 参数 Text 
+ 通过API来创建一个笔记本
+ 返回 一个URL 打开即可访问
+ 
+ 更新
+ POST /api/update
+ 参数 Tag Text
+ 通过API来更新一个已经存在笔记本的内容
+ 
+```
+
+## Nginx代理配置
+
+```shell
+
+        location / {
+                proxy_pass http://127.0.0.1:23456;
+                #携带域名
+                proxy_set_header       Host $host;
+                
+        }
 
 ```
+
 
 原项目地址：https://github.com/pereorga/minimalist-web-notepad
 
