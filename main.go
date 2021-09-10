@@ -24,7 +24,7 @@ type NoteApi struct {
 	db *gorm.DB
 }
 
-const char = "abcdefghijklmnopqrstuvwxyz0123456789"
+const char = "abcdefghijklmnopqrstuvwxyz0123456789!#&*"
 
 func RandChar(size int) string {
 	rand.NewSource(time.Now().UnixNano())
@@ -78,7 +78,7 @@ func (r *NoteApi) create(ctx *gin.Context) {
 	ctx.Bind(&r.Message)
 	randomTag := RandChar(10)
 	if r.db.Where("tag = ?", randomTag).First(msg).RecordNotFound() == true {
-		fmt.Println("无记录")
+		r.Message.Tag = randomTag
 		if affected := r.db.Create(r.Message).RowsAffected; affected == 1 {
 			ctx.String(http.StatusOK, fmt.Sprintf("http://%s/%s", ctx.Request.Host, randomTag))
 			return
@@ -93,14 +93,17 @@ func (r *NoteApi) create(ctx *gin.Context) {
 
 func (r *NoteApi) update(ctx *gin.Context) {
 	msg := &Message{}
+	ctx.Bind(&r.Message)
+	fmt.Println(r.Message)
 	if r.db.Where("tag = ?", r.Message.Tag).First(msg).RecordNotFound() == false {
 		if affected := r.db.Model(r.Message).Where("tag = ?", r.Message.Tag).Update("text", &r.Message.Text).RowsAffected; affected != 0 {
 			ctx.String(http.StatusOK, "UpdateNotebookTextSuccess")
 			return
 		}
-		ctx.String(http.StatusInternalServerError, "UpdateNotebookTextFailed")
+		ctx.String(http.StatusOK, "UpdateNotebookTextNotChanged")
 		return
 	}
+	ctx.String(http.StatusInternalServerError,"UpdateNotebookTextFailed")
 
 }
 func init() {
@@ -114,8 +117,8 @@ func init() {
 func NewDBEngine() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=%s",
 		"user",               //用户名
-		"passwd",          //密码
-		"mysql.com:3306", //db地址
+		"password",          //密码
+		"mysql.low.im:10073", //db地址
 		"notes",              //库名，要先建库
 		"utf8",
 		true,
