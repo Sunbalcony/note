@@ -24,7 +24,7 @@ type NoteApi struct {
 	db *gorm.DB
 }
 
-const char = "abcdefghijklmnopqrstuvwxyz0123456789!#&*"
+const char = "abcdefghijklmnopqrstuvwxyz0123456789!&*"
 
 func RandChar(size int) string {
 	rand.NewSource(time.Now().UnixNano())
@@ -80,7 +80,8 @@ func (r *NoteApi) create(ctx *gin.Context) {
 	if r.db.Where("tag = ?", randomTag).First(msg).RecordNotFound() == true {
 		r.Message.Tag = randomTag
 		if affected := r.db.Create(r.Message).RowsAffected; affected == 1 {
-			ctx.String(http.StatusOK, fmt.Sprintf("http://%s/%s", ctx.Request.Host, randomTag))
+			//如果你配置了nginx代理并启用了HTTPS 下面就填https如果没有就是http
+			ctx.String(http.StatusOK, fmt.Sprintf("https://%s/%s", ctx.Request.Host, randomTag))
 			return
 
 		}
@@ -94,7 +95,6 @@ func (r *NoteApi) create(ctx *gin.Context) {
 func (r *NoteApi) update(ctx *gin.Context) {
 	msg := &Message{}
 	ctx.Bind(&r.Message)
-	fmt.Println(r.Message)
 	if r.db.Where("tag = ?", r.Message.Tag).First(msg).RecordNotFound() == false {
 		if affected := r.db.Model(r.Message).Where("tag = ?", r.Message.Tag).Update("text", &r.Message.Text).RowsAffected; affected != 0 {
 			ctx.String(http.StatusOK, "UpdateNotebookTextSuccess")
@@ -103,7 +103,7 @@ func (r *NoteApi) update(ctx *gin.Context) {
 		ctx.String(http.StatusOK, "UpdateNotebookTextNotChanged")
 		return
 	}
-	ctx.String(http.StatusInternalServerError,"UpdateNotebookTextFailed")
+	ctx.String(http.StatusInternalServerError, "UpdateNotebookTextFailed")
 
 }
 func init() {
@@ -116,9 +116,9 @@ func init() {
 }
 func NewDBEngine() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=%s",
-		"user",               //用户名
+		"username",               //用户名
 		"password",          //密码
-		"mysql.low.im:10073", //db地址
+		"mysql.im:3306", //db地址
 		"notes",              //库名，要先建库
 		"utf8",
 		true,
@@ -149,6 +149,6 @@ func main() {
 
 	r.Static("./static", "./static")
 	r.LoadHTMLGlob("./home/*")
-	r.Run(":80") //监听端口
+	r.Run(":23456") //监听端口
 
 }
