@@ -73,18 +73,14 @@ func NewNoteApi() *NoteApi {
 }
 
 // Api POST请求传递参数Tag和Text
-func (r *NoteApi) Api(ctx *gin.Context) {
+func (r *NoteApi) create(ctx *gin.Context) {
 	msg := &Message{}
 	ctx.Bind(&r.Message)
-	fmt.Println(r.Message)
-	if len(r.Message.Tag) < 10 || r.Message.Text == "" { //控制tag长度
-		ctx.Writer.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	fmt.Println(r.Message.Tag)
-	if r.db.Where("tag = ?", r.Message.Tag).First(msg).RecordNotFound() == true {
-		if affected := r.db.Create(r.Message).RowsAffected; affected != 0 {
-			ctx.String(http.StatusOK, "CreateNotebookTextSuccess")
+	randomTag := RandChar(10)
+	if r.db.Where("tag = ?", randomTag).First(msg).RecordNotFound() == true {
+		fmt.Println("无记录")
+		if affected := r.db.Create(r.Message).RowsAffected; affected == 1 {
+			ctx.String(http.StatusOK, fmt.Sprintf("http://%s/%s", ctx.Request.Host, randomTag))
 			return
 
 		}
@@ -92,6 +88,11 @@ func (r *NoteApi) Api(ctx *gin.Context) {
 		return
 
 	}
+
+}
+
+func (r *NoteApi) update(ctx *gin.Context) {
+	msg := &Message{}
 	if r.db.Where("tag = ?", r.Message.Tag).First(msg).RecordNotFound() == false {
 		if affected := r.db.Model(r.Message).Where("tag = ?", r.Message.Tag).Update("text", &r.Message.Text).RowsAffected; affected != 0 {
 			ctx.String(http.StatusOK, "UpdateNotebookTextSuccess")
@@ -112,10 +113,10 @@ func init() {
 }
 func NewDBEngine() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=%s",
-		"mysqluser",      //用户名
-		"mysqlpassword",  //密码
+		"user",               //用户名
+		"passwd",          //密码
 		"mysql.com:3306", //db地址
-		"notes",          //库名，要先建库
+		"notes",              //库名，要先建库
 		"utf8",
 		true,
 		url.QueryEscape("Asia/Shanghai"),
@@ -138,8 +139,11 @@ func main() {
 	r := gin.Default()
 	r.GET("/", index)
 	r.POST("/:id", processHandle)
-	r.POST("/api", api.Api)
 	r.GET("/:id", processHandle)
+	apiRouter := r.Group("/api")
+	apiRouter.POST("/create", api.create)
+	apiRouter.POST("/update", api.update)
+
 	r.Static("./static", "./static")
 	r.LoadHTMLGlob("./home/*")
 	r.Run(":80") //监听端口
