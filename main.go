@@ -6,9 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"math/rand"
 	"net/http"
-	"net/url"
+	"note/config"
 	"strings"
 	"time"
 )
@@ -24,7 +26,7 @@ type NoteApi struct {
 	db *gorm.DB
 }
 
-const char = "abcdefghijklmnopqrstuvwxyz0123456789!&*"
+const char = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 func RandChar(size int) string {
 	rand.NewSource(time.Now().UnixNano())
@@ -38,7 +40,7 @@ func index(ctx *gin.Context) {
 	ctx.Header("Cache-Control", "no-cache, no-store, must-revalidate")
 	ctx.Header("Pragma", "no-cache")
 	ctx.Header("Expires", "0")
-	ctx.Redirect(http.StatusMovedPermanently, ctx.Request.URL.EscapedPath()+RandChar(10)) //url path长度
+	ctx.Redirect(http.StatusMovedPermanently, ctx.Request.URL.EscapedPath()+RandChar(viper.GetInt("note.keylength"))) //url path长度
 
 }
 
@@ -81,7 +83,7 @@ func (r *NoteApi) create(ctx *gin.Context) {
 		r.Message.Tag = randomTag
 		if affected := r.db.Create(r.Message).RowsAffected; affected == 1 {
 			//如果你配置了nginx代理并启用了HTTPS 下面就填https如果没有就是http
-			ctx.String(http.StatusOK, fmt.Sprintf("https://%s/%s", ctx.Request.Host, randomTag))
+			ctx.String(http.StatusOK, fmt.Sprintf("http://%s/%s", ctx.Request.Host, randomTag))
 			return
 
 		}
@@ -108,48 +110,28 @@ func (r *NoteApi) update(ctx *gin.Context) {
 
 }
 func init() {
+
+	//初始化配置文件信息
+	config.InitConfig()
+
+	//初始化数据库连接
 	db, err := NewDBEngine()
 	if err != nil {
-		panic(err.Error())
+
+		panic(errors.Wrap(err,"初始化数据库链接异常"))
 	}
 	DBEngine = db
 
-}
-func NewDBEngine() (*gorm.DB, error) {
-	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=%s",
-		"username",      //用户名
-		"password",      //密码
-		"mysql.im:3306", //db地址
-		"notes",         //库名，要先建库
-		"utf8",
-		true,
-		url.QueryEscape("Asia/Shanghai"),
-	))
-	if err != nil {
-		return nil, err
-	}
-	db.LogMode(true)
-	db.SingularTable(true)
-	db.DB().SetMaxIdleConns(10)
-	db.DB().SetMaxOpenConns(30)
-	//初始化表结构
-	db.AutoMigrate(&Message{})
-	return db, nil
 
 }
 
 func main() {
-	api := NewNoteApi()
 	r := gin.Default()
-	r.GET("/", index)
-	r.POST("/:id", processHandle)
-	r.GET("/:id", processHandle)
-	apiRouter := r.Group("/api")
-	apiRouter.POST("/create", api.create)
-	apiRouter.POST("/update", api.update)
-
-	r.Static("./static", "./static")
-	r.LoadHTMLGlob("./home/*")
-	r.Run(":23456") //监听端口
+	r = NewRoutes(r)
+	port := viper.GetString("note.serverPort")
+	if port != "" {
+		r.Run(":" + port) //监听端口
+	}
+	panic(r.Run())
 
 }

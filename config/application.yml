@@ -1,0 +1,15 @@
+note:
+  serverPort: 8787
+  keylength: 6
+  mysqlUrl: mysql.im:3306
+  mysqlUsername: root
+  mysqlPassword: 123456
+  mysqlDatabasename: notes
+  timezone: Asia/Shanghai
+
+
+
+
+
+
+

@@ -8,6 +8,10 @@
 
 添加通过API POST请求创建
 
+2021/09/30
+
+配置项解耦，全部放在config/application.yml中
+
 ```
  创建：
  POST /api/create 
@@ -35,20 +39,15 @@
 
 ```
 
-
 原项目地址：https://github.com/pereorga/minimalist-web-notepad
 
 ## 使用说明:
 
 go version 1.16
 
-修改代码中func NewDBEngine()中数据库相关配置
-
 export GO111MODULE=on
 
 export GOPROXY=https://goproxy.cn
-
-默认端口23456
 
 go build后将文件夹二进制要放在note目录下
 
