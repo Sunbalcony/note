@@ -1,6 +1,6 @@
 # 一个web笔记本
 
-本站demo：长期维护 https://note.valarx.com
+本站demo：长期维护 https://note.grpc.fun
 
 ## 更新记录
 
