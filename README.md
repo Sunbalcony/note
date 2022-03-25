@@ -14,7 +14,13 @@
 
 2022/03/25
 
-增加对接redis存储 配置文件type项目 项目工程化处理 优化tag生成逻辑
+增加对接redis存储 
+
+配置文件type项目 
+
+项目工程化处理 
+
+优化tag生成逻辑
 
 ```
  创建：
@@ -59,7 +65,7 @@ go build 保持 conf static note二进制文件同步录下
 
 nohup ./note &
 
-### docker
+### docker部署
 
 本地创建配置文件路径 mkdir -p /data/note/conf
 
