@@ -14,10 +14,7 @@
 
 2022/03/25
 
-增加对接redis存储 配置文件type项目
-项目工程化处理
-优化tag生成逻辑
-
+增加对接redis存储 配置文件type项目 项目工程化处理 优化tag生成逻辑
 
 ```
  创建：
@@ -56,7 +53,34 @@ export GO111MODULE=on
 
 export GOPROXY=https://goproxy.cn
 
-go build后将文件夹二进制要放在note目录下
+go build 保持 conf static note二进制文件同步录下
+
+修改配置文件
 
 nohup ./note &
+
+### docker
+
+本地创建配置文件路径 mkdir -p /data/note/conf
+
+修改配置文件并保存
+```shell
+cat > /data/note/conf/application.yml << EOF
+note:
+  serverPort: 8080
+  keylength: 6
+  type: 1
+  mysqlUrl: mysql.com:3306
+  mysqlUsername: root
+  mysqlPassword: 123456
+  mysqlDatabasename: notes
+  timezone: Asia/Shanghai
+  redisUrl: 192.168.8.8:6379
+  redisPassword: xayf
+  redisDatabaseNum: 1
+EOF
+```
+
+docker run -dit -v /data/note/conf:/root/conf --name note -p 8080:8080 sooemma/note:1.0
+
 
