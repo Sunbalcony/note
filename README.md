@@ -70,6 +70,7 @@ note:
   serverPort: 8080
   keylength: 6
   type: 1
+  #type 0启用mysql 1启动redis
   mysqlUrl: mysql.com:3306
   mysqlUsername: root
   mysqlPassword: 123456
