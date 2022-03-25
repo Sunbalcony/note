@@ -21,7 +21,7 @@ func NewRedisApi() *Redis {
 		Password:    viper.GetString("note.redisPassword"), // redis密码，没有则留空
 		DB:          viper.GetInt("note.redisDatabaseNum"), // 默认数据库，默认是0
 		PoolSize:    100000,                                // Redis连接池大小
-		MaxRetries:  3,                                     // 最大重试次数
+		MaxRetries:  2,                                     // 最大重试次数
 		IdleTimeout: 10 * time.Second,                      // 空闲链接超时时间
 	})
 	return &Redis{rds: client}

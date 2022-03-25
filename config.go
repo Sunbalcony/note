@@ -12,7 +12,7 @@ func InitConfig() {
 	fmt.Println("当前目录", workdir)
 	viper.SetConfigName("application")
 	viper.SetConfigType("yml")
-	viper.AddConfigPath(workdir + "/config")
+	viper.AddConfigPath(workdir + "/conf")
 	err := viper.ReadInConfig()
 	if err != nil {
 		log.Fatal(err)

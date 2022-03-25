@@ -4,9 +4,10 @@ WORKDIR /root
 RUN mkdir static
 RUN mkdir config
 
-COPY static /root/static/
-COPY config /root/config/
-COPY note /root/
+COPY static /root/static
+COPY config /root/config
+COPY note /root
+VOLUME /root/config
 
 EXPOSE 8080
 
