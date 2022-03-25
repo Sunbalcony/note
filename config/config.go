@@ -7,11 +7,9 @@ import (
 	"os"
 )
 
-
-
 func InitConfig() {
 	workdir, _ := os.Getwd()
-	fmt.Println("当前目录",workdir)
+	fmt.Println("当前目录", workdir)
 	viper.SetConfigName("application")
 	viper.SetConfigType("yml")
 	viper.AddConfigPath(workdir + "/config")

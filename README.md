@@ -12,6 +12,13 @@
 
 配置项解耦，全部放在config/application.yml中
 
+2022/03/25
+
+增加对接redis存储 配置文件type项目
+项目工程化处理
+优化tag生成逻辑
+
+
 ```
  创建：
  POST /api/create 

@@ -1,4 +1,4 @@
-package main
+package model
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/viper"
 	"net/url"
 )
+
+var DBEngine *gorm.DB
 
 func NewDBEngine() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=%s&parseTime=%t&loc=%s",

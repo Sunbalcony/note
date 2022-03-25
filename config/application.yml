@@ -1,11 +1,16 @@
 note:
-  serverPort: 8787
+  serverPort: 8080
   keylength: 6
-  mysqlUrl: mysql.im:3306
+  type: 1
+  #type 0启用mysql 1启动redis
+  mysqlUrl: mysql.com:3306
   mysqlUsername: root
   mysqlPassword: 123456
   mysqlDatabasename: notes
   timezone: Asia/Shanghai
+  redisUrl: 1.1.1.1:6379
+  redisPassword: 123456
+  redisDatabaseNum: 0
 
 
 
