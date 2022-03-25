@@ -6,7 +6,6 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"note/config"
 	"note/model"
 )
 
@@ -22,7 +21,7 @@ func main() {
 }
 
 func init() {
-	config.InitConfig()
+	InitConfig()
 	class := viper.GetInt("note.type")
 	fmt.Println(class)
 	if class == 0 {
