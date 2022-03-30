@@ -12,7 +12,8 @@ jobs:
   ## 具体触发的任务
   job1:
     runs-on: ubuntu-latest
-    container: go:1.17
+    container: golang:1.17-alpine
+    # 指定容器运行
     steps:
       - uses: actions/checkout@v2
       - run: echo hello
