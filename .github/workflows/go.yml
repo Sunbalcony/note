@@ -1,25 +1,26 @@
 name: Go
-
+# 名字
 on:
   push:
+    ## 在什么时候出发
     branches: [ main ]
+    ## 出发的分支
   pull_request:
     branches: [ main ]
 
 jobs:
-
-  build:
+  ## 具体触发的任务
+  job1:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
+      - uses: actions/checkout@v2
+      - run: echo hello
+      - run: echo hello2
+      - name: Set up Go env
+        uses: actions/setup-go@v2
+      - name: Build
+        run: go build -v -o ./
+  job2:
+    runs-on: ubuntu-latest
+    steps:
+      - run: build over 
