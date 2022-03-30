@@ -12,6 +12,7 @@ jobs:
   ## 具体触发的任务
   job1:
     runs-on: ubuntu-latest
+    container: go:1.17
     steps:
       - uses: actions/checkout@v2
       - run: echo hello
