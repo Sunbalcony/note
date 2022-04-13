@@ -14,13 +14,15 @@
 
 2022/03/25
 
-增加对接redis存储 
+增加对接redis存储
 
-配置文件type项目 
+配置文件type项目
 
-项目工程化处理 
+项目工程化处理
 
 优化tag生成逻辑
+
+2022/04/13 增加k8s部署方式
 
 and so on
 
@@ -72,6 +74,7 @@ nohup ./note &
 本地创建配置文件路径 mkdir -p /data/note/conf
 
 修改配置文件并保存
+
 ```shell
 cat > /data/note/conf/application.yml << EOF
 note:
