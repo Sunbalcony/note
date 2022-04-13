@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: note
+  labels:
+    app: note
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: note
+      labels:
+        app: note
+    spec:
+      containers:
+        - name: note
+          image: sooemma/note:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+              name: http
+          volumeMounts:
+            - mountPath: /root/conf
+              name: note-config
+      volumes:
+        - name: note-config
+          configMap:
+            name: note-config
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: note
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: note-config
+data:
+  application.yml: |-
+    note:
+      serverPort: 8080
+      keylength: 6
+      type: 1
+      mysqlUrl: mysql.com:3306
+      mysqlUsername: root
+      mysqlPassword: 123456
+      mysqlDatabasename: notes
+      timezone: Asia/Shanghai
+      redisUrl: 192.168.1.1:6379
+      redisPassword: 1234
+      redisDatabaseNum: 3

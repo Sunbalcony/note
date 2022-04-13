@@ -1,8 +1,10 @@
 package main
 
 import (
+	"embed"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	"html/template"
 	"net/http"
 	"note/service"
 	"note/util"
@@ -16,8 +18,12 @@ func index(ctx *gin.Context) {
 
 }
 
+//go:embed static
+var FS embed.FS
+
 // NewRoutes 路由
 func NewRoutes(r *gin.Engine) *gin.Engine {
+	tmpl := template.Must(template.New("").ParseFS(FS, "static/*.html"))
 	class := viper.GetInt("note.type")
 	if class == 0 {
 		api := service.NewNoteApi()
@@ -27,8 +33,7 @@ func NewRoutes(r *gin.Engine) *gin.Engine {
 		apiRouter := r.Group("/api")
 		apiRouter.POST("/create", api.Create)
 		apiRouter.POST("/update", api.Update)
-		r.Static("./static", "./static")
-		r.LoadHTMLGlob("./static/*")
+		r.SetHTMLTemplate(tmpl)
 		return r
 	}
 	if class == 1 {
@@ -38,8 +43,7 @@ func NewRoutes(r *gin.Engine) *gin.Engine {
 		apiRouter := r.Group("/api")
 		apiRouter.POST("/create", service.CreateRedis)
 		apiRouter.POST("/update", service.UpdateRedis)
-		r.Static("./static", "./static")
-		r.LoadHTMLGlob("./static/*")
+		r.SetHTMLTemplate(tmpl)
 		return r
 	}
 	return r
