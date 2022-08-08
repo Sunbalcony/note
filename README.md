@@ -93,6 +93,6 @@ note:
 EOF
 ```
 
-docker run -dit -v /data/note/conf:/root/conf --name note -p 8080:8080 sooemma/note:1.0
+docker run -dit -v /data/note/conf:/root/conf --name note -p 8080:8080 sooemma/note:v-20220808
 
 
