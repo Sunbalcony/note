@@ -5,7 +5,7 @@ RUN mkdir static
 RUN mkdir conf
 
 COPY static /root/static
-COPY config /root/conf
+#COPY config /root/conf
 COPY note /root
 VOLUME /root/conf
 
