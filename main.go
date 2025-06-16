@@ -8,8 +8,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"html/template"
-	"io/fs"
-	"net/http"
 	"note/model"
 )
 
@@ -20,23 +18,7 @@ func main() {
 	r := gin.Default()
 	tmpl := template.Must(template.New("").ParseFS(staticFS, "static/*.html"))
 	r.SetHTMLTemplate(tmpl)
-	staticContent, _ := fs.Sub(staticFS, "static")
 	r = NewRoutes(r)
-	r.GET("/static/:file", func(c *gin.Context) {
-		file := c.Param("file")
-		c.FileFromFS(file, http.FS(staticContent))
-	})
-	r.GET("/:filename", func(c *gin.Context) {
-		filename := c.Param("filename")
-
-		// 检查请求的是否是CSS/JS/ICO文件
-		switch filename {
-		case "style.css", "script.js", "favicon.ico":
-			c.FileFromFS(filename, http.FS(staticContent))
-		default:
-			c.Next() // 继续路由匹配
-		}
-	})
 	port := viper.GetString("note.serverPort")
 	if port != "" {
 		_ = r.Run(":" + port)

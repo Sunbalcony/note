@@ -60,7 +60,7 @@ func (r *Redis) HSetKey(oneKey string, oneField string, oneValue string) {
 func (r *Redis) HSetKeyList(oneKey string, oneField string, oneValue []string) {
 
 	aaa, _ := json.Marshal(oneValue)
-	fmt.Sprintf("A是%s", aaa)
+	fmt.Printf("A是%s", aaa)
 
 	err := r.rds.HSet(oneKey, oneField, aaa).Err()
 	if err != nil {
@@ -84,7 +84,7 @@ func (r *Redis) GetKey(oneExistKey string) (string, error) {
 func (r *Redis) HGetKey(oneKey string, oneField string) string {
 	val, err := r.rds.HGet(oneKey, oneField).Result()
 	if err != nil {
-		fmt.Sprintf("HGet%s;%s值异常", oneKey, oneField)
+		fmt.Printf("HGet%s;%s值异常", oneKey, oneField)
 	}
 	fmt.Println("HGet的值是", val)
 	return val
