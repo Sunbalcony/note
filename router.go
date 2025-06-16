@@ -29,9 +29,6 @@ func NewRoutes(r *gin.Engine) *gin.Engine {
 		r.GET("/", index)
 		r.POST("/:id", service.ProcessHandleMysql)
 		r.GET("/:id", service.ProcessHandleMysql)
-		r.GET("/", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "index.html", nil)
-		})
 
 		apiRouter := r.Group("/api")
 		apiRouter.POST("/create", api.Create)
@@ -43,9 +40,6 @@ func NewRoutes(r *gin.Engine) *gin.Engine {
 		r.GET("/", index)
 		r.POST("/:id", service.ProcessHandleRedis)
 		r.GET("/:id", service.ProcessHandleRedis)
-		r.GET("/", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "index.html", nil)
-		})
 
 		apiRouter := r.Group("/api")
 		apiRouter.POST("/create", service.CreateRedis)

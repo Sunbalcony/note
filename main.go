@@ -18,8 +18,10 @@ func main() {
 	r.SetHTMLTemplate(tmpl)
 	subStaticFS, _ := fs.Sub(FS, "static")
 	r.StaticFS("/static", http.FS(subStaticFS))
-
 	r = NewRoutes(r)
+	r.GET("/favicon.ico", func(c *gin.Context) {
+		c.FileFromFS("favicon.ico", http.FS(subStaticFS))
+	})
 	port := viper.GetString("note.serverPort")
 	if port != "" {
 		r.Run(":" + port) //监听端口
