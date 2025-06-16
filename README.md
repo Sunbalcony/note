@@ -22,7 +22,13 @@
 
 优化tag生成逻辑
 
-2022/04/13 增加k8s部署方式
+2022/04/13 
+增加k8s部署方式
+
+
+2025/06/16 
+完善k8s部署yaml
+html文件中引用替换至本地
 
 and so on
 
@@ -93,6 +99,6 @@ note:
 EOF
 ```
 
-docker run -dit -v /data/note/conf:/root/conf --name note -p 8080:8080 sooemma/note:v-20220808
+docker run -dit -v /data/note/conf:/root/conf --name note -p 8080:8080 sooemma/note:1.0
 
 
