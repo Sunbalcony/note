@@ -47,8 +47,8 @@ data:
       mysqlPassword: 123456
       mysqlDatabasename: notes
       timezone: Asia/Shanghai
-      redisUrl: 10.0.8.2:6379
-      redisPassword: sxwtz
+      redisUrl: 192.168.1.1:6379
+      redisPassword: 123456
       redisDatabaseNum: 1
 ---
 apiVersion: v1
