@@ -6,11 +6,19 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"html/template"
+	"io/fs"
+	"net/http"
 	"note/model"
 )
 
 func main() {
 	r := gin.Default()
+	tmpl := template.Must(template.New("").ParseFS(FS, "static/*.html"))
+	r.SetHTMLTemplate(tmpl)
+	subStaticFS, _ := fs.Sub(FS, "static")
+	r.StaticFS("/static", http.FS(subStaticFS))
+
 	r = NewRoutes(r)
 	port := viper.GetString("note.serverPort")
 	if port != "" {
