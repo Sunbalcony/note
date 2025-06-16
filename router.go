@@ -1,7 +1,6 @@
 package main
 
 import (
-	"embed"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 	"net/http"
@@ -16,9 +15,6 @@ func index(ctx *gin.Context) {
 	ctx.Redirect(http.StatusMovedPermanently, ctx.Request.URL.EscapedPath()+util.RandChar(viper.GetInt("note.keylength"))) //url path长度
 
 }
-
-//go:embed static
-var FS embed.FS
 
 // NewRoutes 路由
 func NewRoutes(r *gin.Engine) *gin.Engine {

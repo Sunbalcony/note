@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -12,19 +13,33 @@ import (
 	"note/model"
 )
 
+//go:embed static/*
+var staticFS embed.FS
+
 func main() {
 	r := gin.Default()
-	tmpl := template.Must(template.New("").ParseFS(FS, "static/*.html"))
+	tmpl := template.Must(template.New("").ParseFS(staticFS, "static/*.html"))
 	r.SetHTMLTemplate(tmpl)
-	subStaticFS, _ := fs.Sub(FS, "static")
-	r.StaticFS("/static", http.FS(subStaticFS))
+	staticContent, _ := fs.Sub(staticFS, "static")
 	r = NewRoutes(r)
-	r.GET("/favicon.ico", func(c *gin.Context) {
-		c.FileFromFS("favicon.ico", http.FS(subStaticFS))
+	r.GET("/static/:file", func(c *gin.Context) {
+		file := c.Param("file")
+		c.FileFromFS(file, http.FS(staticContent))
+	})
+	r.GET("/:filename", func(c *gin.Context) {
+		filename := c.Param("filename")
+
+		// 检查请求的是否是CSS/JS/ICO文件
+		switch filename {
+		case "style.css", "script.js", "favicon.ico":
+			c.FileFromFS(filename, http.FS(staticContent))
+		default:
+			c.Next() // 继续路由匹配
+		}
 	})
 	port := viper.GetString("note.serverPort")
 	if port != "" {
-		r.Run(":" + port) //监听端口
+		_ = r.Run(":" + port)
 	}
 	panic(r.Run())
 
