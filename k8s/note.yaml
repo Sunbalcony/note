@@ -5,7 +5,7 @@ metadata:
   labels:
     app: note
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       name: note
@@ -47,6 +47,20 @@ data:
       mysqlPassword: 123456
       mysqlDatabasename: notes
       timezone: Asia/Shanghai
-      redisUrl: 192.168.1.1:6379
-      redisPassword: 1234
-      redisDatabaseNum: 3
+      redisUrl: 10.0.8.2:6379
+      redisPassword: sxwtz
+      redisDatabaseNum: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: note
+spec:
+  selector:
+    app: note
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: NodePort
+  
