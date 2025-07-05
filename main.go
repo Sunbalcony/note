@@ -3,12 +3,13 @@ package main
 import (
 	"embed"
 	"fmt"
+	"html/template"
+	"note/model"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"html/template"
-	"note/model"
 )
 
 //go:embed static/*
@@ -31,7 +32,9 @@ func init() {
 	InitConfig()
 	class := viper.GetInt("note.type")
 	fmt.Println(class)
-	if class == 0 {
+
+	switch {
+	case class == 0:
 		//初始化数据库连接
 		db, err := model.NewDBEngine()
 		if err != nil {
@@ -39,12 +42,13 @@ func init() {
 		}
 		model.DBEngine = db
 		return
-
-	}
-	if class == 1 {
+	case class == 1:
 		apiClient := model.NewRedisApi()
 		model.Rds = apiClient
 		return
+	default:
+		panic("note.type must be 0 or 1")
 
 	}
+
 }

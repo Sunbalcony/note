@@ -20,7 +20,8 @@ func index(ctx *gin.Context) {
 func NewRoutes(r *gin.Engine) *gin.Engine {
 
 	class := viper.GetInt("note.type")
-	if class == 0 {
+	switch {
+	case class == 0:
 		api := service.NewNoteApi()
 		r.GET("/", index)
 		r.POST("/:id", service.ProcessHandleMysql)
@@ -31,8 +32,7 @@ func NewRoutes(r *gin.Engine) *gin.Engine {
 		apiRouter.POST("/update", api.Update)
 
 		return r
-	}
-	if class == 1 {
+	case class == 1:
 		r.GET("/", index)
 		r.POST("/:id", service.ProcessHandleRedis)
 		r.GET("/:id", service.ProcessHandleRedis)
@@ -41,6 +41,7 @@ func NewRoutes(r *gin.Engine) *gin.Engine {
 		apiRouter.POST("/create", service.CreateRedis)
 		apiRouter.POST("/update", service.UpdateRedis)
 		return r
+
 	}
 	return r
 
