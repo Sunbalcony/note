@@ -1,6 +1,6 @@
 # 一个web笔记本
 
-本站demo：长期维护 https://note.dji.cool
+本站demo：长期维护 https://note.ipip.icu
 
 ## 更新记录
 
